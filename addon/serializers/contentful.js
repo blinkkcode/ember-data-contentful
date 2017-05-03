@@ -66,11 +66,12 @@ export default DS.JSONSerializer.extend({
     return { id: relationshipHash.sys.id, type: relationshipModelName };
   },
 
-  modelNameFromPayloadType(sys) {
+  modelNameFromPayloadType(modelClass, sys) {
+    if (sys.type == 'Error') { return 'Error'; }
     if (sys.type === "Asset") {
       return 'contentful-asset';
     } else {
-      return sys.contentType.sys.id;
+      return modelClass.modelName;
     }
   },
 
@@ -80,7 +81,7 @@ export default DS.JSONSerializer.extend({
     if (resourceHash) {
       data = {
         id: resourceHash.sys.id,
-        type: this.modelNameFromPayloadType(resourceHash.sys),
+        type: this.modelNameFromPayloadType(modelClass, resourceHash.sys),
         attributes: this.extractAttributes(modelClass, resourceHash.fields, resourceHash),
         relationships: this.extractRelationships(modelClass, resourceHash.fields)
       };
