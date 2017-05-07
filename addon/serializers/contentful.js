@@ -62,6 +62,9 @@ export default DS.JSONSerializer.extend({
           return data;
         }
       }
+    } else {
+      // TODO: catches arrays of references
+      return null;
     }
     return { id: relationshipHash.sys.id, type: relationshipModelName };
   },
