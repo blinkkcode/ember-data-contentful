@@ -45,6 +45,7 @@ export default DS.JSONSerializer.extend({
     }
     if (typeOf(relationshipHash) === 'object') {
       let modelClass = this.store.modelFor(relationshipModelName);
+
       if (relationshipHash.sys.type && !this.modelHasAttributeOrRelationshipNamedType(modelClass)) {
         relationshipHash.type = modelClass.modelName;
         relationshipHash.id = relationshipHash.sys.id;
@@ -62,10 +63,8 @@ export default DS.JSONSerializer.extend({
           return data;
         }
       }
-    } else {
-      // TODO: catches arrays of references
-      return null;
     }
+
     return { id: relationshipHash.sys.id, type: relationshipModelName };
   },
 
@@ -149,8 +148,23 @@ export default DS.JSONSerializer.extend({
   },
 
   normalizeSingleResponse(store, primaryModelClass, payload, id, requestType) {
+    let data = this.normalize(primaryModelClass, payload).data;
+
+    // PATCH(@rosschapman): This explicitly serializes the block order onto the post object. It's a
+    // very specific patch coupled to our implementation. I also tried serializing it as a `meta`
+    // property directly on the hash, but that wasn't being consumed properly by Ember Data
+    // once in the app and simply wouldn't be avaible in the route as model.get('meta') -- Ember
+    // Data is just finicky as hell sometimes.
+    if (data.relationships.blocks) {
+      let blockMeta = {};
+      data.relationships.blocks.data.forEach((block, index, enumerable) => {
+        blockMeta[block.id] = index;
+      });
+      data.attributes.blockMeta = blockMeta;
+    }
+
     return {
-      data: this.normalize(primaryModelClass, payload).data,
+      data: data,
       included: this._extractIncludes(store, payload)
     };
   },
