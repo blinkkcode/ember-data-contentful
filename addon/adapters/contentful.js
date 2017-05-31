@@ -117,7 +117,11 @@ export default DS.Adapter.extend({
     @public
   */
   findAll(store, type) {
-    return this._getContent('entries', { 'content_type': this.contentTypeParam(type.modelName) });
+    if (type === 'locale') {
+      return this._getContent('locales');
+    } else {
+      return this._getContent('entries', { 'content_type': this.contentTypeParam(type.modelName) });
+    }
   },
 
   /**
@@ -179,13 +183,20 @@ export default DS.Adapter.extend({
   */
   _getContent(type, params) {
     let data = params || {};
+    let uri;
     let {
       accessToken,
       api,
       space
     } = this._getConfig();
 
-    return fetch(`https://${api}.contentful.com/spaces/${space}/${type}/${this._serializeQueryParams(data)}`, {
+    if (type === 'locales') {
+      debugger
+      `https://${api}.contentful.com/spaces/${space}/locales`
+    } else {
+      uri = `https://${api}.contentful.com/spaces/${space}/${type}/${this._serializeQueryParams(data)}`
+    }
+    return fetch(uri, {
       headers: {
         'Accept': 'application/json; charset=utf-8',
         'Authorization': `Bearer ${accessToken}`
