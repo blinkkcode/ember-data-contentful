@@ -1,6 +1,6 @@
 import DS from 'ember-data';
 import config from 'ember-get-config';
-import fetch from 'ember-network/fetch';
+import fetch from 'fetch';
 
 export default DS.Adapter.extend({
   /**
@@ -190,12 +190,8 @@ export default DS.Adapter.extend({
       space
     } = this._getConfig();
 
-    if (type === 'locales') {
-      debugger
-      `https://${api}.contentful.com/spaces/${space}/locales`
-    } else {
-      uri = `https://${api}.contentful.com/spaces/${space}/${type}/${this._serializeQueryParams(data)}`
-    }
+    uri = `https://${api}.contentful.com/spaces/${space}/${type}/${this._serializeQueryParams(data)}`
+
     return fetch(uri, {
       headers: {
         'Accept': 'application/json; charset=utf-8',
