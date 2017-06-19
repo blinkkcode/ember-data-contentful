@@ -155,7 +155,7 @@ export default DS.JSONSerializer.extend({
     // property directly on the hash, but that wasn't being consumed properly by Ember Data
     // once in the app and simply wouldn't be avaible in the route as model.get('meta') -- Ember
     // Data is just finicky as hell sometimes.
-    if (data.relationships.blocks) {
+    if (data && data.relationships.blocks) {
       let blockMeta = {};
       data.relationships.blocks.data.forEach((block, index, enumerable) => {
         blockMeta[block.id] = index;
